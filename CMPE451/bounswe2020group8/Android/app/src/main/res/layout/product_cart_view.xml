@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:orientation="vertical">
+<LinearLayout
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_marginTop="12dp"
+              android:orientation="horizontal"
+    android:background="@drawable/product_background"
+    android:layout_marginLeft="5dp"
+    android:layout_marginRight="5dp"
+    android:layout_marginBottom="10dp">
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="12dp"
+        android:layout_marginStart="12dp"
+        android:paddingBottom="5dp"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/icon"
+            android:layout_width="150dp"
+            android:layout_height="150dp"/>
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minLines="2"
+            android:paddingLeft="5dp"
+            android:paddingBottom="5dp"/>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="12dp"
+        android:layout_marginRight="12dp"
+        android:layout_gravity="center_vertical"
+        android:layout_weight="3"
+        android:orientation="vertical">
+        <TextView
+            android:id="@+id/price"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minLines="1"
+            android:textSize="21sp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="5dp"
+            android:layout_marginStart="5dp" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <Button
+            android:id="@+id/dec_count"
+            style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+            android:layout_width="32dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center_vertical"
+            android:onClick="decCount"
+            app:icon="@drawable/ic_remove_circle_24px" />
+            <TextView
+                android:id="@+id/number"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minLines="1"
+                android:textSize="16sp"
+                android:layout_gravity="center_vertical"/>
+            <Button
+                android:id="@+id/inc_count"
+                style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+                android:layout_width="32dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center_vertical"
+                android:onClick="incCount"
+                app:icon="@drawable/ic_add_circle_24px" />
+        </LinearLayout>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="12dp"
+        android:layout_marginRight="12dp"
+        android:layout_gravity="center_vertical"
+        android:layout_weight="4"
+        android:orientation="horizontal">
+    <androidx.appcompat.widget.AppCompatToggleButton
+        style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+        android:id="@+id/favourite_product"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_gravity="center_vertical"
+        android:background="@drawable/button_favorite"
+        android:text=""
+        android:textOff=""
+        android:textOn=""
+    />
+
+    <Button
+        android:id="@+id/remove_product"
+        style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+        android:layout_width="32dp"
+        android:layout_height="24dp"
+        android:layout_gravity="center_vertical"
+        app:icon="@drawable/ic_delete"
+    />
+    </LinearLayout>
+</LinearLayout>
+<View android:id="@+id/product_divider"
+      style="@style/Divider" android:layout_marginTop="16dp"/>
+</LinearLayout>
