@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html>
+<body>
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .layout {
+        display: flex;
+        flex-wrap: wrap;
+    }
+    .layout>div {
+        flex: 0 50%;
+    }
+    .navbar {
+        display: flex;
+        flex-wrap: wrap;
+    }
+    .navbar>div {
+        flex: 0 50%;
+    }
+</style>
+<script>
+    function readAllSongs(){
+        var url = "http://0.0.0.0:5001/songs"
+        var xhr = new XMLHttpRequest();
+        var output = '';
+        xhr.open('GET', url);
+        xhr.onload = function () {
+            var songs = JSON.parse(this.responseText);
+            for (var index in songs){
+                output += 
+                    '<li>' +
+                        '<p>' + "Song Id:" + songs[index].id +"</p>" +
+                        '<p>' + "Song Title:" + songs[index].title + "</p>" +
+                        '<p>' + "Song Likes:" + songs[index].likes + "</p>" +
+                    '</li>';
+            }
+            document.getElementById('read-all-song-list').innerHTML = output;
+        }
+        xhr.send();
+    };
+    function readAllAlbums(){
+        var url = "http://0.0.0.0:5001/albums"
+        var xhr = new XMLHttpRequest();
+        var output = '';
+        xhr.open('GET', url);
+        xhr.onload = function () {
+            var albums = JSON.parse(this.responseText);
+            for (var index in albums){
+                output += 
+                    '<li>' +
+                        '<p>' + "Album Id:" + albums[index].id +"</p>" +
+                        '<p>' + "Album Title:" + albums[index].title + "</p>" +
+                        '<p>' + "Album Genre:" + albums[index].genre + "</p>" +
+                    '</li>';
+            }
+            document.getElementById('read-all-album-list').innerHTML = output;
+        }
+        xhr.send();
+    };
+    function readAllArtists(){
+        var url = "http://0.0.0.0:5001/login-artist"
+        var xhr = new XMLHttpRequest();
+        var output = '';
+        xhr.open('GET', url);
+        xhr.onload = function () {
+            var artists = JSON.parse(this.responseText);
+            for (var index in artists){
+                if(artists[index].surname === null){
+                    output += 
+                    '<li>' +
+                        '<p>' + "Artist Id:" + artists[index].id +"</p>" +
+                        '<p>' + "Artist Name:" + artists[index].name + "</p>" +
+                    '</li>';
+                }
+                else{
+                output += 
+                    '<li>' +
+                        '<p>' + "Artist Id:" + artists[index].id +"</p>" +
+                        '<p>' + "Artist Name:" + artists[index].name + "</p>" +
+                        '<p>' + "Artist Surname:" + artists[index].surname + "</p>" +
+                    '</li>';
+                }   
+            }
+            document.getElementById('read-all-artist-list').innerHTML = output;
+        }
+        xhr.send();
+    };
+    function readAllAlbumsofArtist(){
+        var artist_id = document.getElementById('album-artist-id').value;
+        var url = "http://0.0.0.0:5001/artists/albums/" + artist_id;
+        var xhr = new XMLHttpRequest();
+        var output = '';
+        xhr.open('GET', url);
+        xhr.onload = function () {
+            var albums = JSON.parse(this.responseText);
+            for (var index in albums){
+                output += 
+                    '<li>' +
+                        '<p>' + "Album Id:" + albums[index].id +"</p>" +
+                        '<p>' + "Album Title:" + albums[index].title + "</p>" +
+                        '<p>' + "Album Genre:" + albums[index].genre + "</p>" +
+                    '</li>';  
+            }
+            document.getElementById('read-all-album-artist-list').innerHTML = output;
+        }
+        xhr.send();
+    };
+    function readAllSongsofArtist(){
+        var artist_id = document.getElementById('song-artist-id').value;
+        var url = "http://0.0.0.0:5001/artists/songs/" + artist_id;
+        var xhr = new XMLHttpRequest();
+        var output = '';
+        xhr.open('GET', url);
+        xhr.onload = function () {
+            var songs = JSON.parse(this.responseText);
+            for (var index in songs){
+                output += 
+                    '<li>' +
+                        '<p>' + "Song Id:" + songs[index].id +"</p>" +
+                        '<p>' + "Song Title:" + songs[index].title + "</p>" +
+                        '<p>' + "Song Likes:" + songs[index].likes + "</p>" +
+                    '</li>';  
+            }
+            document.getElementById('read-all-song-artist-list').innerHTML = output;
+        }
+        xhr.send();
+    };
+    function readAllSongsofAlbum(){
+        var album_id= document.getElementById('song-album-id').value;
+        var url = "http://0.0.0.0:5001/albums/songs/" + album_id;
+        var xhr = new XMLHttpRequest();
+        var output = '';
+        xhr.open('GET', url);
+        xhr.onload = function () {
+            var songs = JSON.parse(this.responseText);
+            for (var index in songs){
+                output += 
+                    '<li>' +
+                        '<p>' + "Song Id:" + songs[index].id +"</p>" +
+                        '<p>' + "Song Title:" + songs[index].title + "</p>" +
+                        '<p>' + "Song Likes:" + songs[index].likes + "</p>" +
+                    '</li>';  
+            }
+            document.getElementById('read-all-song-album-list').innerHTML = output;
+        }
+        xhr.send();
+    };
+    function songAct(action){
+        var listener_id = document.getElementById('like-song-listener-id').value;
+        var song_id = document.getElementById('like-song-id').value;
+        var url = "http://0.0.0.0:5001/songs/" + song_id;
+        var xhr = new XMLHttpRequest();
+        var body = {"listener_id" : listener_id};
+        var output = '';
+        if(action.id === "increment"){
+            xhr.open('POST', url);
+            xhr.send(JSON.stringify(body));
+        }
+        if(action.id === "decrement"){
+            xhr.open('DELETE', url);
+            xhr.send(JSON.stringify(body));
+        }
+        if(action.id === "get"){
+            xhr.open('GET', url);
+            xhr.onload = function () {
+                var likes = JSON.parse(this.responseText);
+                var output = '<p> Likes: ' + likes.likes + '</p>';
+                document.getElementById('like-song-info').innerHTML = output;
+            }
+            xhr.send();
+        }
+    };
+    function albumAct(action){
+        var listener_id = document.getElementById('like-album-listener-id').value;
+        var album_id = document.getElementById('like-album-id').value;
+        var url = "http://0.0.0.0:5001/albums/" + album_id;
+        var xhr = new XMLHttpRequest();
+        var body = {"listener_id" : listener_id};
+        var output = '';
+        if(action.id === "increment"){
+            xhr.open('POST', url);
+            xhr.send(JSON.stringify(body));
+        }
+        if(action.id === "decrement"){
+            xhr.open('DELETE', url);
+            xhr.send(JSON.stringify(body));
+        }
+        if(action.id === "get"){
+            xhr.open('GET', url);
+            xhr.onload = function () {
+                var likes = JSON.parse(this.responseText);
+                var output = '<p> Likes: ' + likes.likes + '</p>';
+                document.getElementById('like-album-info').innerHTML = output;
+            }
+            xhr.send();
+        }
+    };
+    function likedSongs(){
+        var listener_id = document.getElementById('liked-songs-listener-id').value;
+        var url = "http://0.0.0.0:5001/listeners/songs/" + listener_id;
+        var xhr = new XMLHttpRequest();
+        var output = '';
+        xhr.open('GET', url);
+        xhr.onload = function () {
+            var songs = JSON.parse(this.responseText);
+            for(var index in songs){
+                output += 
+                    '<li>' + 
+                    '<p> Liked Song Id: ' + songs[index].id + '</p>' +
+                    '<p> Liked Song Title: ' + songs[index].title + '</p>' +
+                    '<p> Liked Song Likes: ' + songs[index].likes + '</p>' +
+                    '</li>';
+            }
+            document.getElementById('liked-song-listener-songlist').innerHTML = output;
+        }
+        xhr.send();
+    };
+    function popularSongs(){
+        var artist_id = document.getElementById('rankings-artist-id').value;
+        var url = "http://0.0.0.0:5001/popular/artists/" + artist_id;
+        var xhr = new XMLHttpRequest();
+        var output = '';
+        xhr.open('GET', url);
+        xhr.onload = function () {
+            var songs = JSON.parse(this.responseText);
+            output += '-!- Sorted based on likes from highest to lowest -!-';
+            for(var index in songs){
+                output += 
+                    '<li>' + 
+                    '<p> Popular Song Id: ' + songs[index].id + '</p>' +
+                    '<p> Popular Song Title: ' + songs[index].title + '</p>' +
+                    '<p> Popular Song Likes: ' + songs[index].likes + '</p>' +
+                    '</li>';
+            }
+            document.getElementById('rankings-artist-songlist').innerHTML = output;
+        }
+        xhr.send();
+    };
+    function rankArtists(action){
+        var url = "http://0.0.0.0:5001/rankings";
+        var xhr = new XMLHttpRequest();
+        var output = '';
+        xhr.open('POST', url, true);
+        xhr.onload = function () {
+            var ranks = JSON.parse(this.responseText);
+            output += '-!- Sorted based on likes from highest to lowest -!-';
+            for(var index in ranks){
+                output += 
+                '<li>' + 
+                    '<p> Artist Name: ' + ranks[index].artist_name + '</p>' +
+                    '<p> Artist Likes: ' + ranks[index].total_likes + '</p>' +
+                    '</li>';
+                }
+                if(action.id === 'active'){
+                    document.getElementById('rankings-active-artist-like-list').innerHTML = output;
+                }
+                if(action.id === 'all'){
+                    document.getElementById('rankings-artist-like-list').innerHTML = output;
+                }
+            }
+        if(action.id === "active"){
+            xhr.send(JSON.stringify({'type' : 'active'}));
+        }
+        if(action.id === "all"){
+            xhr.send(JSON.stringify({'type' : 'all'}));
+        }
+    };
+    function searchByGenre(){
+        var genre = document.getElementById('genre-text').value;
+        var url = "http://0.0.0.0:5001/search-by-genre/" + genre;
+        var xhr = new XMLHttpRequest();
+        var output = '';
+        xhr.open('GET', url);
+        xhr.onload = function () {
+            var songs = JSON.parse(this.responseText);
+            for(var index in songs){
+                output += 
+                    '<li>' + 
+                    '<p> Song Id: ' + songs[index].id + '</p>' +
+                    '<p> Song Title: ' + songs[index].title + '</p>' +
+                    '<p> Song Likes: ' + songs[index].likes + '</p>' +
+                    '</li>';
+            }
+            document.getElementById('genre-song-list').innerHTML = output;
+        }
+        xhr.send();
+    };
+    function searchByKeyword(){
+        var keyword = document.getElementById('keyword-text').value;
+        var url = "http://0.0.0.0:5001/search-by-keyword/" + keyword;
+        var xhr = new XMLHttpRequest();
+        var output = '';
+        xhr.open('GET', url);
+        xhr.onload = function () {
+            var songs = JSON.parse(this.responseText);
+            for(var index in songs){
+                output += 
+                    '<li>' + 
+                    '<p> Song Id: ' + songs[index].id + '</p>' +
+                    '<p> Song Title: ' + songs[index].title + '</p>' +
+                    '<p> Song Likes: ' + songs[index].likes + '</p>' +
+                    '</li>';
+            }
+            document.getElementById('keyword-song-list').innerHTML = output;
+        }
+        xhr.send();
+    };
+    function team(){
+        var song_id = document.getElementById('teamplayer-song-id').value;
+        var url = "http://0.0.0.0:5001/coworked/" + song_id;
+        var xhr = new XMLHttpRequest();
+        var output = '';
+        xhr.open('GET', url);
+        xhr.onload = function () {
+            var artists = JSON.parse(this.responseText);
+            console.log(artists)
+            for(var index in artists){
+                if(artists[index].surname === null){
+                    output += 
+                    '<li>' + 
+                    '<p> Artist Id: ' + artists[index].id + '</p>' +
+                    '<p> Artist Name: ' + artists[index].name + '</p>' +
+                    '</li>';
+                }
+                else{
+                    output += 
+                    '<li>' + 
+                    '<p> Artist Id: ' + artists[index].id + '</p>' +
+                    '<p> Artist Name: ' + artists[index].name + '</p>' +
+                    '<p> Artist Surname: ' + artists[index].surname + '</p>' +
+                    '</li>';
+                }
+
+            }
+            document.getElementById('teamplayer-artist-list').innerHTML = output;
+        }
+        xhr.send();
+    };
+</script>
+<div class="navbar">
+    <div>
+        <h1>Listener Page</h1>
+    </div>
+    <div>
+        <form action="/logout" method="post">
+            <button class="logout" type="submit">Logout</button>
+        </form>
+    </div>
+</div>
+<div class="layout">
+    <div class="read-all-songs">
+        <h2>Read All Songs</h2>
+        <button type="submit" onclick="readAllSongs()">Fetch All Songs!</button>
+        <ol id="read-all-song-list"></ol>
+    </div>
+    <div>
+        <h2>Read All Albums</h2>
+        <button type="submit" onclick="readAllAlbums()">Fetch All Albums!</button>
+        <ol id="read-all-album-list"></ol>
+    </div>
+    <div>
+        <h2>Read All Artists</h2>
+        <button type="submit" onclick="readAllArtists()">Fetch All Artists!</button>
+        <ol id="read-all-artist-list"></ol>
+    </div>
+    <div id="album">
+        <h2>Read All Albums of an Artist</h2>
+        <label for="artist_id">Artist Id:</label>
+        <input type="text" id="album-artist-id">
+        <button type="submit" onclick="readAllAlbumsofArtist()">Fetch Albums!</button>
+        <ol id="read-all-album-artist-list"></ol>
+    </div>
+    <div id="song">
+        <h2>Read All Songs of an Artist</h2>
+        <label for="artist_id">Artist Id:</label>
+        <input type="text" id="song-artist-id">
+        <button type="submit" onclick="readAllSongsofArtist()">Fetch Songs!</button>
+        <ol id="read-all-song-artist-list"></ol>
+    </div>
+    <div id="song">
+        <h2>Read All Songs of an Album</h2>
+        <label for="album_id">Album Id:</label>
+        <input type="text" id="song-album-id">
+        <button type="submit" onclick="readAllSongsofAlbum()">Fetch Songs!</button>
+        <ol id="read-all-song-album-list"></ol>
+    </div>
+    <div id="like-songs">
+        <h2>Evaluate Songs</h2>
+        <label for="song_id">Song Id:</label>
+        <input type="text" name="song_id" id="like-song-id">
+        <label for="listener_id">Listener Id:</label>
+        <input type="text" name="listener_id" id="like-song-listener-id">
+        <div>
+            <h2>Like a Song</h2>
+            <button type="submit" id="increment" onclick="songAct(this)">Like!</button>
+        </div>
+        <div>
+            <h2>Dislike a Song</h2>
+            <button type="submit" id="decrement" onclick="songAct(this)">Dislike!</button>
+        </div>
+        <div>
+            <h2>Get Likes of a Song</h2>
+            <button type="submit" id="get" onclick="songAct(this)">Get Likes!</button>
+            <div id="like-song-info"></div>
+        </div>
+    </div>
+    <div id="like-albums">
+        <h2>Evaluate Albums</h2>
+        <label for="album_id">Album Id:</label>
+        <input type="text" name="album_id" id="like-album-id">
+        <label for="listener_id">Listener Id:</label>
+        <input type="text" name="listener_id" id="like-album-listener-id">
+        <div>
+            <h2>Like an Album</h2>
+            <button type="submit" id="increment" onclick="albumAct(this)">Like!</button>
+        </div>
+        <div>
+            <h2>Dislike an Album</h2>
+            <button type="submit" id="decrement" onclick="albumAct(this)">Dislike!</button>
+        </div>
+        <div>
+            <h2>Get Likes of an Album</h2>
+            <button type="submit" id="get" onclick="albumAct(this)">Get Likes!</button>
+            <div id="like-album-info"></div>
+        </div>
+    </div>
+    <div id="liked-songs-listener">
+        <h2>Liked Songs of a Listener</h2>
+        <label for="listener_id">Listener Id:</label>
+        <input type="text" id="liked-songs-listener-id">
+        <button type="submit" onclick="likedSongs()">Find out Liked Songs!</button>
+        <ol id="liked-song-listener-songlist"></ol>
+    </div>
+    <div id="rankings">
+        <h2>Popular Songs of an Artist</h2>
+        <label for="artist_id">Artist Id:</label>
+        <input type="text" id="rankings-artist-id">
+        <button type="submit" onclick="popularSongs()">Find out Popular Songs!</button>
+        <ol id="rankings-artist-songlist"></ol>
+    </div>
+    <div id="active-artist-rankings">
+        <h2>Rankings of All Creator Artists</h2>
+        <button type="submit" id="active" onclick="rankArtists(this)">Find out Rankings of Active Artists!</button>
+        <ol id="rankings-active-artist-like-list"></ol>
+    </div>
+    <div id="artist-rankings">
+        <h2>Rankings of All Artists</h2>
+        <button type="submit" id="all" onclick="rankArtists(this)">Find out Rankings of Artists!</button>
+        <ol id="rankings-artist-like-list"></ol>
+    </div>
+    <div id="song-genre">
+        <h2>Songs of a Genre</h2>
+        <label for="genre-text">Genre:</label>
+        <input type="text" id="genre-text">
+        <button type="submit" onclick="searchByGenre()">Find out Songs of a Genre!</button>
+        <ol id="genre-song-list"></ol>
+    <div id="song-keyword">
+        <h2>Songs of a Keyword</h2>
+        <label for="keyword-text">Keyword:</label>
+        <input type="text" id="keyword-text">
+        <button type="submit" onclick="searchByKeyword()">Find out Songs of a Keyword!</button>
+        <ol id="keyword-song-list"></ol>
+    </div>
+    <div id="teamplayer-artist">
+        <h2>Artists of a Song</h2>
+        <label for="song_id">Song Id:</label>
+        <input type="text" id="teamplayer-song-id">
+        <button type="submit" onclick="team()">Find out the Artists of a Song!</button>
+        <ol id="teamplayer-artist-list"></ol>
+    </div>
+</div>
+</body>
+</html>

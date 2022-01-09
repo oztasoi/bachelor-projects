@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html>
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .layout {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .layout>div {
+        flex: 0 50%;
+    }
+
+    .navbar {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .navbar>div {
+        flex: 0 50%;
+    }
+</style>
+<script>
+    function createSong() {
+        var artist_id = document.getElementById('create-song-artist-id').value
+        var song_title = document.getElementById('create-song-title').value;
+        var song_album_id = document.getElementById('create-song-album-id').value;
+        var song_contributors = document.getElementById('create-song-contributors').value;
+        var contributor_list = song_contributors.split(',');
+        contributor_list = contributor_list.map(s => s.trim());
+
+        var body = { "coworkers": contributor_list, "title": song_title, "album_id": song_album_id }
+        var url = "http://0.0.0.0:5001/artists/songs/" + artist_id;
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', url);
+        xhr.send(JSON.stringify(body));
+
+    };
+    function updateSong() {
+        var song_id = document.getElementById('update-song-id').value;
+        var song_title = document.getElementById('update-song-title').value;
+
+        var body = { "id": song_id, "title": song_title };
+        var url = "http://0.0.0.0:5001/songs";
+        var xhr = new XMLHttpRequest();
+        xhr.open('PATCH', url);
+        xhr.send(JSON.stringify(body));
+    };
+    function deleteSong() {
+        var song_id = document.getElementById('delete-song-id').value;
+        var album_id = document.getElementById('delete-song-album-id').value;
+        var artist_id = document.getElementById('delete-song-artist-id').value;
+
+        var body = { "song_id": song_id, "album_id": album_id };
+        var url = "http://0.0.0.0:5001/artists/songs/" + artist_id;
+        var xhr = new XMLHttpRequest();
+        xhr.open('DELETE', url);
+        xhr.send(JSON.stringify(body));
+    };
+    function readAllSongs() {
+        var url = "http://0.0.0.0:5001/songs"
+        var xhr = new XMLHttpRequest();
+        var output = '';
+        xhr.open('GET', url);
+        xhr.onload = function () {
+            var songs = JSON.parse(this.responseText);
+            for (var index in songs) {
+                output +=
+                    '<li>' +
+                    '<p>' + "Song Id:" + songs[index].id + "</p>" +
+                    '<p>' + "Song Title:" + songs[index].title + "</p>" +
+                    '<p>' + "Song Likes:" + songs[index].likes + "</p>" +
+                    '</li>';
+            }
+            document.getElementById('read-all-song-list').innerHTML = output;
+        }
+        xhr.send();
+    };
+    function readSongsofArtist(){
+        var artist_id = document.getElementById('read-song-of-artist-id').value;
+        var url = "http://0.0.0.0:5001/artists/songs/" + artist_id;
+        var xhr = new XMLHttpRequest();
+        var output = '';
+        xhr.open('GET', url);
+        xhr.onload = function () {
+            var songs = JSON.parse(this.responseText);
+            for (var index in songs){
+                output += 
+                    '<li>' +
+                        '<p>' + "Song Id:" + songs[index].id +"</p>" +
+                        '<p>' + "Song Title:" + songs[index].title + "</p>" +
+                        '<p>' + "Song Likes:" + songs[index].likes + "</p>" +
+                    '</li>';  
+            }
+            document.getElementById('read-song-of-artist-list').innerHTML = output;
+        }
+        xhr.send();
+    };
+    function createAlbum(){
+        var artist_id = document.getElementById('create-album-artist-id').value;
+        var title = document.getElementById('create-album-title').value;
+        var genre = document.getElementById('create-album-genre').value;
+        var body = {"title" : title, "is_creator" : 1, "genre" : genre};
+        var url = "http://0.0.0.0:5001/artists/albums/" + artist_id;
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', url);
+        xhr.send(JSON.stringify(body));
+    };
+    function updateAlbum(){
+        var album_id = document.getElementById('update-album-id').value;
+        var title = document.getElementById('update-album-title').value;
+        var genre = document.getElementById('update-album-genre').value;
+        var body = {"id" : album_id, "title" : title, "genre" : genre};
+        var url = "http://0.0.0.0:5001/albums";
+        var xhr = new XMLHttpRequest();
+        xhr.open('PATCH', url);
+        xhr.send(JSON.stringify(body));
+    };
+    function deleteAlbum(){
+        var album_id = document.getElementById('delete-album-id').value;
+        var artist_id = document.getElementById('delete-album-artist-id').value;
+        var is_creator = document.getElementById('delete-album-is-creator').value;
+        var body = {"album_id" : album_id, "is_creator" : is_creator};
+        var url = "http://0.0.0.0:5001/artists/albums/" + artist_id;
+        var xhr = new XMLHttpRequest();
+        xhr.open('DELETE', url);
+        xhr.send(JSON.stringify(body));
+    };
+    function readAllAlbums() {
+        var url = "http://0.0.0.0:5001/albums"
+        var xhr = new XMLHttpRequest();
+        var output = '';
+        xhr.open('GET', url);
+        xhr.onload = function () {
+            var albums = JSON.parse(this.responseText);
+            for (var index in albums) {
+                output +=
+                    '<li>' +
+                    '<p>' + "Album Id:" + albums[index].id + "</p>" +
+                    '<p>' + "Album Title:" + albums[index].title + "</p>" +
+                    '<p>' + "Album Genre:" + albums[index].genre + "</p>" +
+                    '</li>';
+            }
+            document.getElementById('read-all-album-list').innerHTML = output;
+        }
+        xhr.send();
+    };
+    function readAlbumsofArtist(){
+        var artist_id = document.getElementById('read-album-of-artist-id').value;
+        var url = "http://0.0.0.0:5001/artists/albums/" + artist_id;
+        var xhr = new XMLHttpRequest();
+        var output = '';
+        xhr.open('GET', url);
+        xhr.onload = function () {
+            var albums = JSON.parse(this.responseText);
+            for (var index in albums){
+                output += 
+                    '<li>' +
+                        '<p>' + "Album Id:" + albums[index].id +"</p>" +
+                        '<p>' + "Album Title:" + albums[index].title + "</p>" +
+                        '<p>' + "Album Genre:" + albums[index].genre + "</p>" +
+                    '</li>';  
+            }
+            document.getElementById('read-album-of-artist-list').innerHTML = output;
+        }
+        xhr.send();
+    }
+</script>
+
+<body>
+    <div>
+        <div class="navbar">
+            <div>
+                <h1 id="artist_welcome">Artist Page</h1>
+            </div>
+            <div>
+                <form action="/logout" method="post">
+                    <button class="logout" type="submit">Logout</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="layout">
+        <div class="song">
+            <div class="create-song">
+                <h2>Create a Song</h1>
+                    <ul>
+                        <li>
+                            <label for="creator_id">Artist Id:</label>
+                            <input type="text" name="title" id="create-song-artist-id">
+                        </li>
+                        <li>
+                            <label for="title">Title:</label>
+                            <input type="text" name="title" id="create-song-title">
+                        </li>
+                        <li>
+                            <label for="album_id">Album Id:</label>
+                            <input type="text" name="album_id" id="create-song-album-id">
+                        </li>
+                        <li>
+                            <label for="contributors">Contributors:</label>
+                            <input type="text" name="contributors" id="create-song-contributors">
+                        </li>
+                        <li class="button">
+                            <button type="submit" onclick="createSong()">Submit</button>
+                        </li>
+                    </ul>
+            </div>
+            <div class="update-song">
+                <h2>Update a Song</h2>
+                <ul>
+                    <li>
+                        <label for="title">Title:</label>
+                        <input type="text" name="title" id="update-song-title">
+                    </li>
+                    <li>
+                        <label for="song_id">Song Id:</label>
+                        <input type="text" name="song_id" id="update-song-id">
+                    </li>
+                    <li class="button">
+                        <button type="submit" onclick="updateSong()">Submit</button>
+                    </li>
+                </ul>
+            </div>
+            <div class="delete-song">
+                <h2>Delete a Song</h2>
+                <ul>
+                    <li>
+                        <label for="song_id">Song Id:</label>
+                        <input type="text" name="song_id" id="delete-song-id">
+                    </li>
+                    <li>
+                        <label for="album_id">Album Id:</label>
+                        <input type="text" name="album_id" id="delete-song-album-id">
+                    </li>
+                    <li>
+                        <label for="artist_id">Artist Id:</label>
+                        <input type="text" name="artist_id" id="delete-song-artist-id">
+                    </li>
+                    <li class="button">
+                        <button type="submit" onclick="deleteSong()">Submit</button>
+                    </li>
+                </ul>
+            </div>
+            <div class="read-all-song">
+                <h2>Find All Songs</h2>
+                <button type="submit" onclick="readAllSongs()">Find All Songs!</button>
+                <ol id="read-all-song-list"></ol>
+            </div>
+            <div class="read-song-of-artist">
+                <h2>Find Songs of An Artist</h2>
+                <input type="text" name="artist_id" id="read-song-of-artist-id">
+                <button type="submit" onclick="readSongsofArtist()">Find All Songs of an Artist!</button>
+                <ol id="read-song-of-artist-list"></ol>
+            </div>
+        </div>
+        <div class="album">
+            <div class="create-album">
+                <h2>Create an Album</h1>
+                <ul>
+                    <li>
+                        <label for="title">Title:</label>
+                        <input type="text" name="title" id="create-album-title">
+                    </li>
+                    <li>
+                        <label for="genre">Genre:</label>
+                        <input type="text" name="genre" id="create-album-genre">
+                    </li>
+                    <li>
+                        <label for="artist_id">Artist Id:</label>
+                        <input type="text" name="artist_id" id="create-album-artist-id">
+                    </li>
+                    <li class="button">
+                        <button type="submit" onclick="createAlbum()">Submit</button>
+                    </li>
+                </ul>
+            </div>
+            <div class="update-album">
+                <h2>Update an Album</h2>
+                <ul>
+                    <li>
+                        <label for="album_id">Album Id:</label>
+                        <input type="text" name="album_id" id="update-album-id">
+                    </li>
+                    <li>
+                        <label for="title">Title:</label>
+                        <input type="text" name="title" id="update-album-title">
+                    </li>
+                    <li>
+                        <label for="genre">Genre:</label>
+                        <input type="text" name="genre" id="update-album-genre">
+                    </li>
+                    <li class="button">
+                        <button type="submit" onclick="updateAlbum()">Submit</button>
+                    </li>
+                </ul>
+            </div>
+            <div class="delete-album">
+                <h2>Delete an Album</h2>
+                <h3> -!- You can only delete if you are the creator of an album -!- </h3>
+                <ul>
+                    <li>
+                        <label for="album_id">Album Id:</label>
+                        <input type="text" name="song_id" id="delete-album-id">
+                    </li>
+                    <li>
+                        <label for="artist_id">Artist Id:</label>
+                        <input type="text" name="artist_id" id="delete-album-artist-id">
+                    </li>
+                    <li>
+                        <label for="is_creator">Are You Creator?:</label>
+                        <input type="text" name="is_creator" id="delete-album-is-creator">
+                    </li>
+                    <li class="button">
+                        <button type="submit" onclick="deleteAlbum()">Submit</button>
+                    </li>
+                </ul>
+            </div>
+            <div class="read-all-albums">
+                <h2>Find All Songs</h2>
+                <button type="submit" onclick="readAllAlbums()">Find All Albums!</button>
+                <ol id="read-all-album-list"></ol>
+            </div>
+            <div class="read-album-of-artist">
+                <h2>Find Songs of An Artist</h2>
+                <input type="text" name="artist_id" id="read-album-of-artist-id">
+                <button type="submit" onclick="readAlbumsofArtist()" >Find All Albums of an Artist!</button>
+                <ol id="read-album-of-artist-list"></ol>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

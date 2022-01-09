@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .layout {
+        display: grid;
+        grid-template-columns: 50% 50%;
+        column-gap: 20px;
+    }
+</style>
+
+<body>
+    <div>
+        <h1>
+            Welcome to DBtify!
+        </h1>
+    </div>
+    <div class="layout">
+        <div class="login-artist">
+            <h2>Login for Artists</h2>
+            <form action="/login-artist" method="post">
+                <ul>
+                    <li>
+                        <label for="name">Name:</label>
+                        <input type="text" name="name">
+                    </li>
+                    <li>
+                        <label for="surname">Surname:</label>
+                        <input type="text" name="surname">
+                    </li>
+                    <li>
+                        <label for="a_password">Password:</label>
+                        <input type="password" name="artist-password"></textarea>
+                    </li>
+                    <li class="button">
+                        <button type="submit">Login</button>
+                    </li>
+                </ul>
+            </form>
+        </div>
+        <div class="login-listener">
+            <h2>Login for Listeners</h2>
+            <form action="/login-listener" method="post">
+                <ul>
+                    <li>
+                        <label for="username">Username:</label>
+                        <input type="text" name="username">
+                    </li>
+                    <li>
+                        <label for="email">Email:</label>
+                        <input type="email" name="email">
+                    </li>
+                    <li>
+                        <label for="l_password">Password:</label>
+                        <input type="password" name="listener-password"></textarea>
+                    </li>
+                    <li class="button">
+                        <button type="submit">Login</button>
+                    </li>
+                </ul>
+            </form>
+        </div>
+    </div>
+
+</body>
+
+</html>

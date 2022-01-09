@@ -1,0 +1,498 @@
+\documentclass[12pt]{report}
+\usepackage{algorithm,algorithmic}
+
+\title{\bf{CmpE 321 Spring - 2020 Project 1 Report}}
+\author{Ibrahim Ozgurcan Oztas \\ 2016400198}
+\date{\today}
+
+\begin{document}
+\maketitle
+\pagenumbering{Roman}
+\newpage
+\tableofcontents
+
+\chapter{Introduction}
+This report is constructed for the documentation of a Database Management System(DBMS) that is developed by my efforts. In this report, a user can find simple yet concise explanations regarding the core structure of the database. \\\\
+This DBMS has been called "The Mountain" by its creator, Ibrahim Ozgurcan Oztas. The main purpose behind this project is to design a DBMS that has been requested by his instructor at course CmpE 321, Introduction to Database Systems. \\\\
+The construction process includes several parts such as "Observation", "Innovation" and "Origination". \\\\
+In "Observation", I've gathered several insights from currently used Database Management Systems such as MySQL and PostgreSQL which are both relational databases and the core of these databases depends on Object-Relation Model(ORM). In this project, "ORM" is the sole approach to define and use databases. \\\\
+In "Innovation", I've imagined the possibility: What if there's another place in control of DBMS which holds data that's been loaded to RAM? It would bring a minor increase in performance that may be enough for a few cases, where amount of data is so huge that the search algorithm takes very long time even though the new search would retrieve a record that's been inside the same page with a previously retrieved one. \\\\
+In "Origination", I've installed a medium layer that works as a cache for the each database. This approach will handle the cost of retrieving a record in the same page of another record that is already been retrieved. That brings out the capability of more queries done in the same amount of time. \\\\
+In next chapter, one can find the fact that this project has several assumptions to ease out the implementations and a few constraints either given by the instructor, or the revelations of realistic approach. \\\\ 
+In further chapters, one can find the storage structures, DDL and DML operations, and the conclusion \& assessment of the project. \\\\
+Hope one has a wonderful time while reading!
+
+\chapter{Assumptions \& Constraints}
+For this project, the assumptions that are listed below are considered. \\\\\\
+\begin{itemize}
+\item {\large \textbf{For Records:}}
+\begin{itemize}
+\item \textbf{Number of features in a record}, $F_{T}$, can be either 8 or 9 or 10. It is decided for the inserted type, when a new type is inserted in system catalogue.
+\item \textbf{Data type} stored in features in a record is integer(4 bytes).
+\item \textbf{Record header} includes \textbf{12 byte} character array that represents the latest changed time in format (YYYYMMDDHHmm).
+\item \textbf{Record size} is calculated according the following equation: \\ 
+{\large $B_{record} = B_{recordheader} + {F_T}\cdot{B_{feature}}$, where ${F_T}\in{\{8,9,10\}}$}.
+\item Since $F_{T}$ can take 3 values, there can be \textbf{3 types of records} that consumes \textbf{44}, \textbf{48}, and \textbf{52} bytes, respectively.
+\end{itemize}
+\newpage
+\item {\large \textbf{For Pages:}}
+\begin{itemize}
+\item \textbf{Number of records in a page}, $N_P$, is decided constantly for all unique record type, which is \textbf{32 for all types}.
+\item \textbf{Page Header} is same for all three unique types, that holds \textbf{4 different information}, explained below:
+\begin{itemize}
+\item \textbf{Available record indicator}, $A_R$, which holds whether $i^{th}$ record is valid or not, for ${i} = 1, 2, 3, ..., 32$. Hence, for each record I've allocated 1 bit to validate, \textbf{4 bytes} of storage are allocated for this information.
+\item \textbf{Binary page fullness density}, $b_f$, which holds the data that corresponds whether this page is \textbf{completely full} or not. Hence, \textbf{1 byte} of information is reserved in page header for this information.
+\item \textbf{Binary page emptiness density}, $b_e$, which holds the data that corresponds whether this page is \textbf{completely empty} or not. Hence, \textbf{1 byte} of information is reserved in page header for this information.
+\item \textbf{Number of features in records}, $F_T$, which holds the type of records that has either 8 or 9 or 10 features. \textbf{Type A records} hold \textbf{8} features, \textbf{Type B records} hold \textbf{9} features and \textbf{Type C records} hold \textbf{10} features. For \textbf{"Type A"}, character \textbf{'A'}, for \textbf{"Type B"}, character \textbf{'B'}, and for \textbf{"Type C"}, character \textbf{'C'} are used.
+\item \textbf{Indicator of contamination}, $b_c$, which holds the information about whether this page should be \textbf{completely purged (deleted)} or not. \textbf{1 byte} is sufficient for this information.
+\item \textbf{Total amount of bytes} consumed by page header: \\
+\textbf{4 + 1 + 1 + 1 + 1 = 8}
+\end{itemize}
+\item The \textbf{logical position(priority)} of page header information: \\
+${b}_{f}{b}_{e}{F}_{T}{b}_{c}{A}_{R}$
+\item \textbf{Page size} is calculated according the following equation: \\
+{\large $B_{page} = B_{pageheader} + {N_P}\cdot{B_{record}}$}, where $B_{record}$ can take either \textbf{44} or \textbf{48} or \textbf{52}, and ${N}_{P}$ is \textbf{32}, defined above. \\
+\textbf{A page} may contain \textbf{1416} or \textbf{1544} or \textbf{1672} bytes, according the record type that it holds.
+\end{itemize}
+\newpage
+\item {\large \textbf{For Files:}}
+\begin{itemize}
+\item \textbf{A file can hold} up to \textbf{100 pages}, at \textbf{maximum}.
+\item \textbf{Size of file} may \textbf{differ} due to different types of records.
+\item \textbf{File Header} includes \textbf{4 kind of information}, explained below:
+\begin{itemize}
+\item \textbf{Number of pages in file}, $N_Q$, is the \textbf{amount of page} that the file currently stores. \textbf{3 bytes} of information is suffice to hold this information.
+\item \textbf{Last accessed page}, $L_Q$ is \textbf{the page} that has been \textbf{requested} by the user \textbf{most recently}. \textbf{3 bytes} of information is suffice to hold this information.
+\item \textbf{Number of cached pages}, $C_Q$, is the cached pages that resides in medium layer temporarily. It can be \textbf{minimum 1}, and \textbf{maximum 5}. It is decided when a new type is registered in system catalogue. \textbf{1 byte} of information is suffice to hold this information.
+\item \textbf{Binary caching indicator}, $b_Q$, is the information \textbf{whether caching is enabled} for this type or not. It is decided when a new type is registered in system catalogue. \textbf{1 byte} of information is suffice to hold this information.
+\item \textbf{Total amount of bytes} consumed by file header: \\
+\textbf{3 + 3 + 1 + 1 = 8}
+\end{itemize}
+\item \textbf{File size} is calculated according to the following equation: \\
+{\large $B_{file} = B_{fileheader} + {N_Q}\cdot{B_{page}}$}, where $N_Q$ is the current number of pages in file and $B_{page}$ is the byte amount that one page consumes. \\
+\textbf{At maximum values}, the files may contain \textbf{141.608(141.6KB)} or \textbf{154.408(154KB)} or \textbf{167.208(167.2KB)} bytes, respectively.
+\item After that, \textbf{if necessary}, \textbf{another file may be created} for the same type.
+\item \textbf{The naming convention of files} is : \\
+$<type\_name>-<file\_number>.db$, where $<file\_number>$ can take values from $0001_{10} $ to $1000_{10}$.
+\end{itemize}
+
+\newpage
+
+\item{\large \textbf{For System Catalog:}}
+\begin{itemize}
+\item \textbf{The system catalog} can hold at most 20 types.
+\item \textbf{Each type} can have \textbf{at least 8, at most 10} type features.
+\item \textbf{Each type name} is described with \textbf{a string which is at most 20 characters}.
+\item \textbf{Each type feature} is identified with \textbf{a string which is at most 20 characters}.
+\item \textbf{Each type} has a \textbf{binary caching indicator, $b_{Q}$}, to hold the information of whether the caching system is enabled or not. 1 byte of space is reserved to hold this information.
+\item \textbf{Each type} has a \textbf{number of cached pages, $C_{Q}$}, to hold the number of pages in medium layer, described in introduction part. 1 byte of space is reserved to hold this information.
+\item For a \textbf{single type}, the \textbf{required byte amount} is calculated according the following equation: \\
+$BYTE_{type} = BYTE_{type\_name} + F_{type}\cdot{BYTE_{feature\_name}} + BYTE_{C_{Q}} + BYTE_{b_{Q}}$ 
+\item For \textbf{the complete system catalog}, the \textbf{overall byte requirement} is calculated according the following equation: \\
+$BYTE_{catalog} = 20 \cdot BYTE_{type}$
+\end{itemize}
+\end{itemize}
+
+\chapter{Storage Structures}
+\paragraph{System Catalogue:}
+In this part, I've explained the overall structure of the system catalogue and its properties. \\	
+
+\begin{itemize}
+\item In system catalogue, I've collected several data from the user, such as \textbf{number of cached pages} and \textbf{binary caching indicator} to decide it is enabled or disabled for that type, in addition to the names of the features of a type.
+\end{itemize}
+
+\hspace{4cm}\textbf{System Catalogue Table:} 
+{
+\begin{center}
+\begin{tabular}{|l|l|l|l|l|l|l|l|l|l|l|l|l|}
+\hline
+ $<type\_name>$ & $F_{n1}$ & $F_{n2}$ & $F_{n3}$ & $F_{n4}$ & . & . & . & $F_{n8}$ & $F_{n9}$ & $F_{n{10}}$ & $C_Q$ & $b_Q$ \\
+\hline
+ $<type\_name>$ & $F_{n1}$ & $F_{n2}$ & $F_{n3}$ & $F_{n4}$ & . & . & . & $F_{n8}$ & $F_{n9}$ & $F_{n{10}}$ & $C_Q$ & $b_Q$ \\
+\hline
+ $<type\_name>$ & $F_{n1}$ & $F_{n2}$ & $F_{n3}$ & $F_{n4}$ & . & . & . & $F_{n8}$ & $F_{n9}$ & $F_{n{10}}$ & $C_Q$ & $b_Q$ \\
+\hline
+ $<type\_name>$ & $F_{n1}$ & $F_{n2}$ & $F_{n3}$ & $F_{n4}$ & . & . & . & $F_{n8}$ & $F_{n9}$ & $F_{n{10}}$ & $C_Q$ & $b_Q$ \\
+\hline
+\end{tabular}
+\end{center}
+}
+
+\vspace{0.15cm}
+
+\begin{itemize}
+\item The design of system catalogue is illustrated above to clarify the structure for all to understand. For each type, user has been abled to select different number of unique feature among 3 possibilities, 8, 9 or 10.
+\item The \textbf{first feature for each type} in system catalogue is decided to be the \textbf{primary  key} of that type, in addition to the fact that \textbf{every value} of a feature of a record must be \textbf{integer}. Users are kindly reminded of that information whenever a new type is added to the system catalogue.
+\item At most \textbf{20} type can be added to the system catalogue.
+\end{itemize}
+
+\newpage
+\paragraph{Page Design:}
+In this part, I've explained the overall structure of the page design and its properties. \\
+
+\begin{itemize}
+\item In page design, I've imagined the fact that \textbf{pages} are constructed as \textbf{a stream of data} that holds a batch of records of a requested type. Also, pages are composed of \textbf{2 parts}, namely \textbf{page header} and \textbf{page data}.
+\end{itemize}
+
+\vspace{1cm}
+
+\hspace{3.2cm}\textbf{Page Header Part of a Type:} 
+{
+\begin{center}
+\begin{tabular}{|l|l|l|l|}
+\hline
+$b_f$ & $b_e$ & $F_{T}$ & $A_{R}$ \\
+\hline
+\end{tabular}
+\end{center}
+}
+
+\vspace{2cm}
+
+\hspace{3.4cm}\textbf{Page Data Part of a Type:} 
+{
+\begin{center}
+\begin{tabular}{|l|l|l|l|l|l|l|l|l|l|l|l|l|}
+\hline
+ $H_{1}$ & $F_{n1,1}$ & $F_{n1,2}$ & $F_{n1,3}$ & $F_{n1,4}$ & $F_{n1,5}$ & $F_{n1,6}$ & $F_{n1,7}$ & $F_{n1,8}$ & $F_{n1,9}$ & $F_{n{1,10}}$ \\
+\hline
+ $H_{2}$ & $F_{n2,1}$ & $F_{n2,2}$ & $F_{n2,3}$ & $F_{n2,4}$ & $F_{n2,5}$ & $F_{n2,6}$ & $F_{n2,7}$ & $F_{n2,8}$ & $F_{n2,9}$ & $F_{n{2,10}}$ \\
+\hline
+ $H_{3}$ & $F_{n3,1}$ & $F_{n3,2}$ & $F_{n3,3}$ & $F_{n3,4}$ & $F_{n3,5}$ & $F_{n3,6}$ & $F_{n3,7}$ & $F_{n3,8}$ & $F_{n3,9}$ & $F_{n{3,10}}$ \\
+\hline
+ $H_{4}$ & $F_{n4,1}$ & $F_{n4,2}$ & $F_{n4,3}$ & $F_{n4,4}$ & $F_{n4,5}$ & $F_{n4,6}$ & $F_{n4,7}$ & $F_{n4,8}$ & $F_{n4,9}$ & $F_{n{4,10}}$ \\
+\hline
+ $H_{5}$ & $F_{n5,1}$ & $F_{n5,2}$ & $F_{n5,3}$ & $F_{n5,4}$ & $F_{n5,5}$ & $F_{n5,6}$ & $F_{n5,7}$ & $F_{n5,8}$ & $F_{n5,9}$ & $F_{n{5,10}}$ \\
+\hline
+ $H_{6}$ & $F_{n6,1}$ & $F_{n6,2}$ & $F_{n6,3}$ & $F_{n6,4}$ & $F_{n6,5}$ & $F_{n6,6}$ & $F_{n6,7}$ & $F_{n6,8}$ & $F_{n6,9}$ & $F_{n{6,10}}$ \\
+\hline
+ $H_{7}$ & $F_{n7,1}$ & $F_{n7,2}$ & $F_{n7,3}$ & $F_{n7,4}$ & $F_{n7,5}$ & $F_{n7,6}$ & $F_{n7,7}$ & $F_{n7,8}$ & $F_{n7,9}$ & $F_{n{7,10}}$ \\
+\hline
+ $H_{8}$ & $F_{n8,1}$ & $F_{n8,2}$ & $F_{n8,3}$ & $F_{n8,4}$ & $F_{n8,5}$ & $F_{n8,6}$ & $F_{n8,7}$ & $F_{n8,8}$ & $F_{n8,9}$ & $F_{n{8,10}}$ \\
+\hline
+\end{tabular}
+\end{center}
+}
+
+\paragraph{Record Design:}
+As shown above, a record is composed of 2 parts, \textbf{record header} and \textbf{record data}. \\\\
+\textbf{Record header} only includes the information of last changed time in format {\large \textbf{YYYYMMDDHHmm}}, where \textbf{YYYY} represents year, \textbf{MM} represents month, \textbf{DD} represents day, \textbf{HH} represents hour in \textbf{24 hour format}, \textbf{mm} represents minute.
+
+\chapter{DDL \& DML Operations}
+
+\paragraph{Database Definition Language Operations:}
+In this part, I've defined several operations that has effects on the system catalogue. You are here to find three distinct operation to define the system catalogue of the DBMS.
+
+\begin{itemize}
+\item \textbf{Create a Type:} Creating a Type includes an insertion operation into the system catalogue file, with several unique inputs, such as type features, binary caching indicator, and number of cached pages. \\\\
+If user tries to create a type which registered before, then the DBMS returns an error message indicating that the user had already registered this type.
+\item \textbf{Delete a Type:} Deleting a Type includes an removal operation from the system catalogue file, without any distinct input from user. The selected type is removed with its current records, without asking any permission. \\\\
+If user tries to remove a type which does not exist in the system catalogue, then the DBMS returns an error message indicating that there's no such type to be removed.
+\item \textbf{List all Types:} Listing all Types includes an itemization operation onto the system catalogue, without any input from user. All of the types are listed onto command prompt, or graphical user interface if enabled.
+\end{itemize}
+
+\vspace{5cm}
+
+\begin{algorithm}
+\caption{Create a Type}
+\begin{algorithmic}[1]
+	\STATE $new\_type \leftarrow readInput()$
+	\STATE $type\_list \leftarrow L_T$
+	\STATE $type\_counter \leftarrow length(L_T)$
+	\STATE $for\hspace{0.2cm}i\hspace{0.2cm}\leftarrow\hspace{0.2cm}0\hspace{0.2cm}to\hspace{0.2cm}type\_counter\hspace{0.2cm}do$
+	\STATE $\hspace{1cm}if\hspace{0.2cm}type\_list[i]['type\_name']==new\_type['type\_name']\hspace{0.2cm}then$
+	\STATE $\hspace{2cm}return\hspace{0.2cm}TypeCreationError$
+	\STATE $\hspace{1cm}else\hspace{0.2cm}then$
+	\STATE $\hspace{2cm}continue$
+	\STATE $join(type\_list, new\_type)$
+	\STATE $return\hspace{0.2cm}type\_list$
+\end{algorithmic}
+\end{algorithm}
+
+\begin{itemize}
+\item In the algorithm explained above, $L_T$ is the list of types in system catalogue, and for simplicity in algorithm, $readInput()$ and $length(K)$ functions are explained in this part.
+
+\begin{itemize}
+\item $readInput()$, is the function that reads from the user via command prompt. When creating a new type, user enter all necessary information constrained under the statements in chapter 2, which implies that all features of the type, the binary caching indicator and if necessary, the number of cached pages for the type, are required to create a new type.
+\item $length(K)$, is the function returns the number of items in list K.
+\end{itemize}
+
+\end{itemize}
+
+\begin{algorithm}
+\caption{Delete a Type}
+\begin{algorithmic}[1]
+	\STATE $deleted\_type\_name \leftarrow readInput()$
+	\STATE $type\_list \leftarrow L_T$
+	\STATE $type\_counter \leftarrow length(L_T)$
+	\STATE $for\hspace{0.2cm}i\leftarrow0\hspace{0.2cm}to\hspace{0.2cm}type\_counter\hspace{0.2cm}do$
+	\STATE $\hspace{1cm}if\hspace{0.2cm}type\_list[i]['type\_name'] == deleted\_type\_name\hspace{0.2cm}then$
+	\STATE $\hspace{2cm}remove(type\_list, deleted\_type\_name)$
+	\STATE $\hspace{2cm}removeData(deleted\_type\_name)$
+	\STATE $\hspace{2cm}return\hspace{0.2cm}type\_list[i]$
+	\STATE $\hspace{1cm}else\hspace{0.2cm}then$
+	\STATE $\hspace{2cm}continue$
+	\STATE $return\hspace{0.2cm}TypeExistenceError$
+\end{algorithmic}
+\end{algorithm}
+
+\newpage
+
+\begin{itemize}
+\item In the algorithm explained above, $L_T$ is the list of types in system catalogue, and for simplicity in algorithm, $readInput()$, $removeData(T)$, and $length(K)$ functions are explained in this part.
+
+\begin{itemize}
+\item $readInput()$, is the function that reads from the user via command prompt. When deleting a type, user enters the name of the deleted type only. All records of deleted type and type itself are deleted, after input read.
+\item $removeData(T)$, is the function that removes all files regarding to type T from the operating system. Any trace that implies type $T$ is removed, after the function called.
+\item $length(K)$, is the function returns the number of items in list K.
+\end{itemize}
+
+\end{itemize}
+
+\newpage
+
+\begin{algorithm}
+\caption{List all Types}
+\begin{algorithmic}[1]
+	\STATE $type\_list \leftarrow L_T$
+	\STATE $type\_counter \leftarrow length(L_T)$
+	\STATE $for\hspace{0.2cm}i\leftarrow0\hspace{0.2cm}to\hspace{0.2cm}type\_counter\hspace{0.2cm}do$
+	\STATE $\hspace{1cm}current\_type \leftarrow type\_list[i]$
+	\STATE $\hspace{1cm}feature\_counter \leftarrow length(current\_type)$
+	\STATE $\hspace{1cm}displayLine(current\_type[0])$
+	\STATE $\hspace{1cm}for\hspace{0.2cm}j\leftarrow1\hspace{0.2cm}to\hspace{0.2cm}feature\_counter\hspace{0.2cm}do$
+	\STATE $\hspace{2cm}displayLine(current\_type[0] + current\_type[j])$
+	\STATE $return\hspace{0.2cm}type\_list$
+\end{algorithmic}
+\end{algorithm}
+
+\begin{itemize}
+\item In the algorithm explained above, $L_T$ is the list of types in system catalogue, and for simplicity in algorithm, $length(K)$ function is explained in this part.
+
+\begin{itemize}
+\item $length(K)$, is the function returns the number of items in list K.
+\item $displayLine(Q)$, is the function which prints out the given parameter to the console output.
+\item $displayLine(P + R)$, is the function which prints out the given parameters joined with 8 space characters to the console output.
+\end{itemize}
+
+\end{itemize}
+
+\newpage
+
+\paragraph{Database Manipulation Language Operations:}
+In this part, I've defined several operations that has effects on the files of the types that are listed in the system catalogue. You are here to find five distinct operations to manipulate the files regarding to the system catalogue.
+
+\begin{itemize}
+\vspace{1cm}
+\item \textbf{Create a Record:} Creating a record includes an insertion operation to the current file of the specified type. While adding operation is being performed, several conditions are evaluated to progress further. One of them is whether there's a record that has the same primary key with the new record. To eliminate that problem, I've decided to make primary key auto-incremental for each type. With that, there'll be no duplicates in data files. In addition to that, all data must be sorted in ascending order, by the given constraints in project description. Hence, I've devised a sorting algorithm that handles the sorting process after insertion. Yet, it has brought severe burden to the DBMS due to the sorting condition after record creation operation. All details regarding the sorting algorithm are explained in further parts of this chapter. \\\\
+\item \textbf{Delete a Record:} Deleting a record includes an removal operation of a record from the current file of the specified type. While removing operation is being performed, it has to be known for sure that a non-existing record can not be deleted. Hence, there's a validation along with the process to be sure that the desired data can be deleted.
+
+\newpage
+
+\vspace{3cm}
+\item \textbf{Search a Record(by primary key):} Searching a record via its primary key includes many condition operations to find out exact record that is requested to be listed. Since it is known for sure that the data will be hold in ascending sorted manner, a linear search would be suffice to reach the exact record.  \\\\\\
+\item \textbf{Update a Record(by primary key):} Updating a record via its primary key includes many condition operations to find out exact record that is requested to be patched. It is assured that input validation for the updated record is necessary for all records in the specified file of that type. \\\\\\
+\item \textbf{List all Records of a type:} Listing all records of a type includes a complete walkthrough from first record to be read until last record is read completely. It is known for sure that listing all records result in reaching all records in that type costs linear complexity to the DBMS, hence it is coverable even if there's massive number of record registered in DBMS.
+\end{itemize}
+
+\begin{algorithm}
+\caption{Create a Record:}
+\begin{algorithmic}[1]
+	\STATE $user\_input\_array \leftarrow readInput()$
+	\STATE $file\_name \leftarrow findLastFile(T)$
+	\STATE $pos\_file \leftarrow openFile(file\_name)$
+	\STATE $header\_byte\_array \leftarrow runOverBytes(position\_file, 8)$
+	\STATE $total\_page\_count \leftarrow byteToInteger(header\_byte\_array[0:3])$
+	\STATE $file\_type \leftarrow typeFinder(header\_byte\_array)$
+	\STATE $page\_size \leftarrow pageSizeFinder(file\_type)$
+	\STATE $record\_size \leftarrow recordSizeFinder(file\_type)$
+	\STATE $for\hspace{0.2cm}i\leftarrow0\hspace{0.2cm}to\hspace{0.2cm}total\_page\_count\hspace{0.2cm}do$
+	\STATE $\hspace{1cm}pos\_file \leftarrow current\_page\_position + page\_size$
+	\STATE $\hspace{1cm}current\_file\_position \leftarrow pos\_file$
+	\STATE $\hspace{1cm}page\_header\_array \leftarrow runOverBytes(pos\_file, 8)$
+	\STATE $\hspace{1cm}is\_page\_full \leftarrow byteToInteger(page\_header\_array[0:1])$
+	\STATE $\hspace{1cm}if\hspace{0.2cm}is\_page\_full\hspace{0.2cm}then$
+	\STATE $\hspace{2cm}continue$
+	\STATE $\hspace{1cm}else\hspace{0.2cm}then$
+	\STATE $\hspace{2cm}first\_empty\_record \leftarrow bitChecker(page\_header\_array[4:8])$
+	\STATE $\hspace{2cm}{pos\_file}\leftarrow{pos\_file}+{first\_empty\_record}*{record\_size}$
+	\STATE $\hspace{2cm}added\_record \leftarrow oWB(pos\_file, record\_size, user\_input\_array)$
+	\STATE $\hspace{2cm}return\hspace{0.2cm}added\_record$
+	\STATE $current\_file\_position \leftarrow current\_file\_position + page\_size$
+	\STATE $if\hspace{0.2cm}total\_page\_count==100\hspace{0.2cm}then$
+	\STATE $\hspace{1cm}added\_file \leftarrow addNewFile(T)$
+	\STATE $\hspace{1cm}pos\_file \leftarrow openFile(added\_file)$
+	\STATE $\hspace{1cm}added\_record \leftarrow oWB(pos\_file, record\_size, user\_input\_array)$
+	\STATE $\hspace{1cm}return\hspace{0.2cm}added\_record$
+	\STATE $else\hspace{0.2cm}then$
+	\STATE $\hspace{1cm}allocated\_bytes \leftarrow memAlloc(current\_file\_position, page\_size)$
+	\STATE $\hspace{1cm}pos\_file \leftarrow current\_file\_position + 8$
+	\STATE $\hspace{1cm}added\_record \leftarrow oWB(pos\_file, record\_size, user\_input\_array)$
+	\STATE $\hspace{1cm}return\hspace{0.2cm}added\_record$
+\end{algorithmic}
+\end{algorithm}
+
+\newpage
+
+\begin{itemize}
+\item $readInput()$, is a function which includes inquiring information from user, that returns a list of strings.
+\item $findLastFile(T)$, is a function which includes returning the file that is the last storage of that type.
+\item $openFile(file\_name)$, is a function which includes returning the byte position of the file named as $file\_name$.
+\item $runOverBytes(position\_file, byte\_number)$, is a function which includes scanning over $byte\_number$ of bytes from starting point $position\_file$, and then returning the scanned byte(s) as a byte array.
+\item $byteToInteger(byte\_array)$, is a function which includes returning the integer value of a $byte\_array$.
+\item $typeFinder(header\_byte\_array)$, is a function which includes returning the type information embedded inside $header\_byte\_array$.
+\item $pageSizeFinder(file\_type)$, is a function which includes returning the page size of that specific type of record, given as $file\_type$.
+\item $recordSizeFinder(file\_type)$, is a function which includes returning the record size of that specific type of record, given as $file\_type$.
+\item $bitChecker(page\_header\_array)$, is a function which includes checking bit expansion of the given byte array, then returning the index of first zero bit starting from rightmost bit.
+\item $oWB(pos\_file, record\_size, user\_input\_array)$, is a function which includes replacing bytes in size of $record\_size$, from starting $pos\_file$ with \\ 
+$user\_input\_array$ data transformed into byte values, then changing the value of the bit in page header part for the newly added record. Then, it returns the byte array of newly added record.
+\item $addNewFile(T)$, is a function which includes creating a new file for storing records for type T, then returning its name.
+\item $memAlloc(current\_file\_position, page_size)$, is a function which includes extending the size of current file, starting from $current\_file\_position$ and extending it by an amount of $page\_size$, then returning the array of bytes.
+\end{itemize}
+
+\begin{algorithm}
+\caption{Delete a Record:}
+\begin{algorithmic}[1]
+	\STATE $deleted\_record\_pkey \leftarrow readInput()$
+	\STATE $file\_list \leftarrow findAllFiles(T)$
+	\STATE $record\_size \leftarrow findRecordSize(T)$
+	\STATE $record\_file\_quantity \leftarrow 3200$
+	\STATE $file\_number \leftarrow deleted\_record\_pkey / 3200$
+	\STATE $req\_file \leftarrow file\_list[file\_number]$
+	\STATE $page\_number \leftarrow (deleted\_record\_pkey - 3200 * file\_number) / 32$
+	\STATE $page\_size \leftarrow findPageSize(T)$
+	\STATE $pos\_file \leftarrow openFile(file\_list[file\_number])$
+	\STATE $pos\_file \leftarrow pos\_file + page\_size * page\_number$
+	\STATE $page\_header\_array \leftarrow runOverBytes(pos\_file, 8)$
+	\STATE $record\_order \leftarrow modulo(deleted\_record\_pkey - 1, 32)$
+	\STATE $pos\_file \leftarrow pos\_file + record\_order * record\_size$
+	\STATE $deleted\_record \leftarrow oWB(pos\_file, record\_size, NULL)$
+	\STATE $return\hspace{0.2cm}deleted\_record$
+\end{algorithmic}
+\end{algorithm}
+
+\begin{itemize}
+\item $readInput()$, is a function which includes inquiring information from user, that returns a list of strings.
+\item $findAllFiles(T)$, is a function which includes collecting the names of all files for type T into a list, and returning the list.
+\item $findRecordSize(T)$, is a function which includes returning the size of a record given in type T.
+\item $findPageSize(T)$, is a function which includes returning the size of a page given in type T.
+\item $openFile(file\_name)$, is a function which includes returning the byte position of the file named as $file\_name$.
+\item $runOverBytes(pos\_file, byte\_amount)$, is a function which includes returning the byte array starting from $pos\_file$ and iterates it over $byte\_amount$, then returning the byte array.
+\item $modulo(a,b)$, is a function which includes taking $a\%b$ and returns the resulting value.
+\item $oWB(pos\_file, record\_size, NULL)$, is a function which includes replacing bytes in size of $record\_size$, from starting $pos\_file$ with \\ 
+$NULL$ value transformed into byte values, then changing the value of the bit in page header part for the deleted record. Then, it returns the byte array of deleted record.
+\end{itemize}
+
+\begin{algorithm}
+\caption{Search a Record(via primary key):}
+\begin{algorithmic}[1]
+	\STATE $record\_pkey \leftarrow readInput()$
+	\STATE $file\_list \leftarrow findAllFiles(T)$
+	\STATE $record\_size \leftarrow findRecordSize(T)$
+	\STATE $record\_file\_quantity \leftarrow 3200$
+	\STATE $file\_number \leftarrow record\_pkey / 3200$
+	\STATE $req\_file \leftarrow file\_list[file\_number]$
+	\STATE $page\_number \leftarrow (record\_pkey - 3200 * file\_number) / 32$
+	\STATE $page\_size \leftarrow findPageSize(T)$
+	\STATE $pos\_file \leftarrow openFile(file\_list[file\_number])$
+	\STATE $pos\_file \leftarrow pos\_file + page\_size * page\_number$
+	\STATE $page\_header\_array \leftarrow runOverBytes(pos\_file, 8)$
+	\STATE $record\_order \leftarrow modulo(record\_pkey - 1, 32)$
+	\STATE $pos\_file \leftarrow pos\_file + record\_order * record\_size$
+	\STATE $searched\_record \leftarrow runOverBytes(pos\_file, record\_size)$
+	\STATE $return\hspace{0.2cm}searched\_record$
+\end{algorithmic}
+\end{algorithm}
+
+\begin{itemize}
+\item $readInput()$, is a function which includes inquiring information from user, that returns a list of strings.
+\item $findAllFiles(T)$, is a function which includes collecting the names of all files for type T into a list, and returning the list.
+\item $findRecordSize(T)$, is a function which includes returning the size of a record given in type T.
+\item $findPageSize(T)$, is a function which includes returning the size of a page given in type T.
+\item $openFile(file\_name)$, is a function which includes returning the byte position of the file named as $file\_name$.
+\item $runOverBytes(pos\_file, byte\_amount)$, is a function which includes returning the byte array starting from $pos\_file$ and iterates it over $byte\_amount$, then returning the byte array.
+\item $modulo(a,b)$, is a function which includes taking $a\%b$ and returns the resulting value.
+\end{itemize}
+
+\begin{algorithm}
+\caption{Update a Record(via primary key):}
+\begin{algorithmic}[1]
+	\STATE $updated\_record\_pkey \leftarrow readInput()$
+	\STATE $updated\_record\_input\_array \leftarrow readInput()$
+	\STATE $file\_list \leftarrow findAllFiles(T)$
+	\STATE $record\_size \leftarrow findRecordSize(T)$
+	\STATE $record\_file\_quantity \leftarrow 3200$
+	\STATE $file\_number \leftarrow updated\_record\_pkey / 3200$
+	\STATE $req\_file \leftarrow file\_list[file\_number]$
+	\STATE $page\_number \leftarrow (updated\_record\_pkey - 3200 * file\_number) / 32$
+	\STATE $page\_size \leftarrow findPageSize(T)$
+	\STATE $pos\_file \leftarrow openFile(file\_list[file\_number])$
+	\STATE $pos\_file \leftarrow pos\_file + page\_size * page\_number$
+	\STATE $page\_header\_array \leftarrow runOverBytes(pos\_file, 8)$
+	\STATE $record\_order \leftarrow modulo(updated\_record\_pkey - 1, 32)$
+	\STATE $pos\_file \leftarrow pos\_file + record\_order * record\_size$
+	\STATE $updated\_record \leftarrow oWB(pos\_file, record\_size, updated\_record\_input\_array)$
+	\STATE $return\hspace{0.2cm}updated\_record$
+\end{algorithmic}
+\end{algorithm}
+
+\begin{itemize}
+\item $readInput()$, is a function which includes inquiring information from user, that returns a list of strings.
+\item $findAllFiles(T)$, is a function which includes collecting the names of all files for type T into a list, and returning the list.
+\item $findRecordSize(T)$, is a function which includes returning the size of a record given in type T.
+\item $findPageSize(T)$, is a function which includes returning the size of a page given in type T.
+\item $openFile(file\_name)$, is a function which includes returning the byte position of the file named as $file\_name$.
+\item $runOverBytes(pos\_file, byte\_amount)$, is a function which includes returning the byte array starting from $pos\_file$ and iterates it over $byte\_amount$, then returning the byte array.
+\item $modulo(a,b)$, is a function which includes taking $a\%b$ and returns the resulting value.
+\item $oWB(pos\_file, record\_size, user\_input\_array)$, is a function which includes replacing bytes in size of $record\_size$, from starting $pos\_file$ with \\ 
+$user\_input\_array$ data transformed into byte values, then changing the value of the bit in page header part for the updated record. Then, it returns the byte array of updated record.
+\end{itemize}
+
+\begin{algorithm}
+\caption{List all Records:}
+\begin{algorithmic}[1]
+	\STATE $list\_type \leftarrow readInput()$
+	\STATE $file\_list \leftarrow findAllFiles(list\_type)$
+	\STATE $record\_size \leftarrow findRecordSize(list\_type)$
+	\STATE $list\_length \leftarrow length(file\_list)$
+	\STATE $for\hspace{0.2cm}i\leftarrow0\hspace{0.2cm}to\hspace{0.2cm}list\_length\hspace{0.2cm}do$
+	\STATE $\hspace{1cm}current\_file \leftarrow file\_list[i]$
+	\STATE $\hspace{1cm}current\_pos\_file \leftarrow openFile(current\_file)$
+	\STATE $\hspace{1cm}file\_header \leftarrow runOverBytes(current\_pos\_file, 8)$
+	\STATE $\hspace{1cm}page\_amount \leftarrow byteToInteger(file\_header[0:3])$
+	\STATE $\hspace{1cm}for\hspace{0.2cm}j\leftarrow0\hspace{0.2cm}to\hspace{0.2cm}page\_amount\hspace{0.2cm}do$
+	\STATE $\hspace{2cm}current\_record \leftarrow runOverBytes(current\_pos\_file, record\_size)$
+	\STATE $\hspace{2cm}display(current\_record)$
+\end{algorithmic}
+\end{algorithm}
+
+\begin{itemize}
+\item $readInput()$, is a function which includes inquiring information from user, that returns a list of strings.
+\item $findAllFiles(T)$, is a function which includes collecting the names of all files for type T into a list, and returning the list.
+\item $findRecordSize(T)$, is a function which includes returning the size of a record given in type T.
+\item $openFile(file\_name)$, is a function which includes returning the byte position of the file named as $file\_name$.
+\item $runOverBytes(pos\_file, byte\_amount)$, is a function which includes returning the byte array starting from $pos\_file$ and iterates it over $byte\_amount$, then returning the byte array.
+\item $byteToInteger(byte\_array)$, is a function which includes returning the integer value of a $byte\_array$.
+\item $display(current\_record)$, is a function which includes printing the value of $current\_record$ to the command prompt as a stream of strings.
+\end{itemize}
+
+\chapter{Conclusions \& Assessment}
+
+In this design explained in former chapters, is a theoretical construction composed on the given assumptions \& constraints, and the creator's imagination. Yet, it has several pros and cons in a trade-off manner. In this chapter, the further information is based on the advantages and disadvantages that this design has brought in reality. \\
+\paragraph{Pros:}
+\begin{itemize}
+\item Dynamic approach to the record types has brought different types of record metadata and it enhances the efficiency of storage for different needs.
+\item Overriding the default caching protocol via user has created a different supplying methods of records for different kind of demands by a user. If a user wants that there will be no caching, then it is for sure that for each fetching action processed on the database will take quite a time for a massive data chunk for queries requiring same data each time.
+\item Number of pages resides in cache is a great feature in my point of view, since it is known that caching depends on temporal locality and spatial locality. Increasing number of pages in RAM would likely increase the spatial locality and will have benevolent effects on overall efficiency of the DBMS. 
+
+\newpage
+
+\item Sorted data in all types in DBMS has brought a quite load-off of searching a record in the database. For the usual approach, creating a record costs in complexity of $O(n^2)$, if insertion sort is used to create and sort the data. But in my approach, since page headers hold the information of each record place in every page whether a record is registered or unregistered to the database. Then, every action progresses in linear complexity $O(n)$, which is quite an efficiency. 
+\end{itemize}
+
+\paragraph{Cons:}
+\begin{itemize}
+\item Increased chance of bugs, since different features are included in the DBMS and while coding, it might brought up more bugs than a default project.
+\item Complexity of coding process is quite higher than a usual approach of designing a DBMS, since imitating the workflow of RAM for each database, defining a caching alongside with the dynamic record structure, and the algorithms behind all DDL \& DML operations inside DBMS will cost quite a time to code, analyze and test than a regular project.
+\end{itemize}
+\end{document}

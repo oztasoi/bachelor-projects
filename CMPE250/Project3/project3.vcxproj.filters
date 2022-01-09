@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="D:\PDFLibrary\CMPE250\CMPE250GitHubClassroom\cmpe250-project3-oztasozgurcan-master-old\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="D:\PDFLibrary\CMPE250\CMPE250GitHubClassroom\cmpe250-project3-oztasozgurcan-master-old\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{782A2D1B-E413-3A9D-B999-68DE55547486}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

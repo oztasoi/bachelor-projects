@@ -1,0 +1,4 @@
+Cannot generate into D:\PDFLibrary\CMPE250\CMPE250GitHubClassroom\cmpe250-project1-oztasozgurcan-master
+It was created with incompatible generator 'Visual Studio 15 2017'
+
+Please either delete it manually or select another generation directory
