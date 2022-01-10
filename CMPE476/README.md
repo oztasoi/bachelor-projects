@@ -6,7 +6,7 @@
 
 ## Projects
 
-- [Project 1](/Project1) `LaTeX`
-- [Project 2](/Project2) `LaTeX`
-- [Project 3](/Project3) `LaTeX`
-- [Project 4](/Project4) `Java`
+- [Project 1](/CMPE476/Project1) `LaTeX`
+- [Project 2](/CMPE476/Project2) `LaTeX`
+- [Project 3](/CMPE476/Project3) `LaTeX`
+- [Project 4](/CMPE476/Project4) `Java`

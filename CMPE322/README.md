@@ -5,5 +5,5 @@
 | Tuna Tuğcu | Fall 2019|
 
 ## Projects
-- [Project 1](/Project1) `Shell`
-- [Project 2](/Project2) `C++`
+- [Project 1](/CMPE322/Project1) `Shell`
+- [Project 2](/CMPE322/Project2) `C++`

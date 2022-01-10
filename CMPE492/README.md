@@ -6,7 +6,7 @@
 
 ## Projects
 
-- [Poster](/Poster.pdf) `LaTeX`
-- [Presentation](/Presentation.pdf) `LaTeX`
-- [Report](/Report.pdf) `LaTeX`
-- [Video](/Video.mp4)
+- [Poster](/CMPE492/Poster.pdf) `LaTeX`
+- [Presentation](/CMPE492/Presentation.pdf) `LaTeX`
+- [Report](/CMPE492/Report.pdf) `LaTeX`
+- [Video](/CMPE492/Video.mp4)

@@ -6,10 +6,10 @@
 
 ## Projects
 
-- [Final](/Final) `Python3 / Bash`
-- [Presentation](/Presentation) `LaTeX`
-- [Project 1](/Project1) `Python3`
-- [Project 2](/Project2) `Python3`
-- [Project 3](/Project3) `Python3`
-- [Project 4](/Project4) `Python3`
-- [Project 6](/Project6) `Python3`
+- [Final](/CMPE487/Final) `Python3 / Bash`
+- [Presentation](/CMPE487/Presentation) `LaTeX`
+- [Project 1](/CMPE487/Project1) `Python3`
+- [Project 2](/CMPE487/Project2) `Python3`
+- [Project 3](/CMPE487/Project3) `Python3`
+- [Project 4](/CMPE487/Project4) `Python3`
+- [Project 6](/CMPE487/Project6) `Python3`

@@ -5,6 +5,6 @@
 | Can Özturan | Spring 2019|
 
 ## Projects
-- [Project 1](/Project1) `Assembly`
-- [Project 2](/Project2) `Python3`
-- [Project 3](/Project3) `C++ / Qt`
+- [Project 1](/CMPE230/Project1) `Assembly`
+- [Project 2](/CMPE230/Project2) `Python3`
+- [Project 3](/CMPE230/Project3) `C++ / Qt`

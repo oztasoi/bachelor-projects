@@ -5,6 +5,6 @@
 | Tuna Tuğcu | Spring 2018|
 
 ## Projects
-- [Project 1](/Project1) `Java`
-- [Project 2](/Project2) `Java`
-- [Project 3](/Project3) `Java`
+- [Project 1](/CMPE160/Project1) `Java`
+- [Project 2](/CMPE160/Project2) `Java`
+- [Project 3](/CMPE160/Project3) `Java`

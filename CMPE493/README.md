@@ -6,8 +6,8 @@
 
 ## Projects
 
-- [Final](/Final) `Python3`
-- [Project 1](/Project1) `Python3`
-- [Project 2](/Project2) `Python3`
-- [Project 3](/Project3) `Python3`
-- [Project 4](/Project4) `Python3`
+- [Final](/CMPE493/Final) `Python3`
+- [Project 1](/CMPE493/Project1) `Python3`
+- [Project 2](/CMPE493/Project2) `Python3`
+- [Project 3](/CMPE493/Project3) `Python3`
+- [Project 4](/CMPE493/Project4) `Python3`
