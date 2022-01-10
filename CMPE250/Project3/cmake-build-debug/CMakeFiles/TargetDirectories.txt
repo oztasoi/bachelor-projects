@@ -1,3 +1,0 @@
-D:/PDFLibrary/CMPE250/CMPE250GitHubClassroom/cmpe250-project3-oztasozgurcan-master-old/cmake-build-debug/CMakeFiles/project3.dir
-D:/PDFLibrary/CMPE250/CMPE250GitHubClassroom/cmpe250-project3-oztasozgurcan-master-old/cmake-build-debug/CMakeFiles/edit_cache.dir
-D:/PDFLibrary/CMPE250/CMPE250GitHubClassroom/cmpe250-project3-oztasozgurcan-master-old/cmake-build-debug/CMakeFiles/rebuild_cache.dir
