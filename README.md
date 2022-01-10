@@ -4,6 +4,9 @@
 #### A few of them are missing, yet most of them are in here.
 #### If you have a question, please open an issue and we can discuss.
 
+## PLEASE, DO NOT COPY MY WORK IN YOUR PROJECTS.
+## YOU MAY BE INSPIRED FROM THEM, BUT YOU **CAN NOT COPY** ANY OF IT! 
+
 ### [CMPE150: Introduction to Computing](/CMPE150/)
 - [Project 2](/CMPE150/Project2) `Java`
 - [Project 3](/CMPE150/Project3) `Java`
