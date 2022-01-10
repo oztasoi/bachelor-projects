@@ -1,8 +1,8 @@
 # :fire: My Bachelor Projects :fire:
 
-This is the collection of my bachelor projects.
-A few of them are missing, yet most of them are in here.
-Don't forget to :star2:
+#### This is the collection of my bachelor projects.
+#### A few of them are missing, yet most of them are in here.
+#### If you have a question, please open an issue and we can discuss.
 
 ### [CMPE150: Introduction to Computing](/CMPE150/)
 - [Project 2](/CMPE150/Project2) `Java`
