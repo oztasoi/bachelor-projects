@@ -1,0 +1,2 @@
+CMPE493/Final/metadata.csv filter=lfs diff=lfs merge=lfs -text
+CMPE493/Final/Video.mp4 filter=lfs diff=lfs merge=lfs -text
