@@ -13,3 +13,5 @@
 - [Project 3](/CMPE487/Project3) `Python3`
 - [Project 4](/CMPE487/Project4) `Python3`
 - [Project 6](/CMPE487/Project6) `Python3`
+
+#### Final Project Repository: [Here](https://github.com/oztasoi/trivial-pursuit-cli)

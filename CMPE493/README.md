@@ -11,3 +11,5 @@
 - [Project 2](/CMPE493/Project2) `Python3`
 - [Project 3](/CMPE493/Project3) `Python3`
 - [Project 4](/CMPE493/Project4) `Python3`
+
+#### Final Project Repository: [Here](https://github.com/oztasoi/trec-covid-analysis)
