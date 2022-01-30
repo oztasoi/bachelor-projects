@@ -57,9 +57,9 @@
 - [Project 3](/CMPE362/Project3) `MatLab`
 
 ### [CMPE451: Development in Software Engineering](/CMPE451/)
-- [Mobile](/CMPE451/bounswe2020group8/Android) `Kotlin`
-- [Web](/CMPE451/bounswe2020group8/web) `React`
-- [Backend](/CMPE451/bounswe2020group8/backend) `NodeJS / Express`
+- [Mobile](/CMPE451/Android) `Kotlin`
+- [Web](/CMPE451/web) `React`
+- [Backend](/CMPE451/backend) `NodeJS / Express`
 
 ### [CMPE462: Machine Learning](/CMPE462/)
 - [Final](/CMPE462/Final) `Python3 / Numpy`
